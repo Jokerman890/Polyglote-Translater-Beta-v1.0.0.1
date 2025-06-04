@@ -26,3 +26,54 @@ Check out the [Convex docs](https://docs.convex.dev/) for more information on ho
 ## HTTP API
 
 User-defined http routes are defined in the `convex/router.ts` file. We split these routes into a separate file from `convex/http.ts` to allow us to prevent the LLM from modifying the authentication routes.
+
+## Ablauf einer Anfrage
+
+Der Client ruft die Aktion `translateText` über `api.translate.translateText` in
+`src/App.tsx` auf. Diese Aktion führt mehrere Schritte aus, um die endgültige
+Übersetzung zurückzugeben und die Nutzung zu protokollieren:
+
+1. **Glossar-Abfrage** – Ist ein Benutzer angemeldet, fragt `translateText`
+   mithilfe von `getGlossaryMatchForTerm` die Tabelle `userGlossaries` nach einer
+   vorhandenen benutzerdefinierten Übersetzung ab.
+2. **Cache-Abfrage** – Wird kein Glossareintrag gefunden, prüft die Aktion mit
+   `getTranslationFromCache` die Tabelle `translationsCache`.
+3. **Externe API** – Bei einem Cache-Miss ruft sie die OpenAI-API auf, um eine
+   Übersetzung zu erhalten.
+4. **Ergebnis speichern** – Die neue Übersetzung wird mit
+   `storeTranslationInCache` gespeichert und die Nutzung via
+   `recordTranslationUsage` in `userMonthlyUsage` festgehalten.
+
+Der komplette Ablauf ist im folgenden Diagramm dargestellt:
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Uebersetzen as translateText Aktion
+    participant Glossar as getGlossaryMatchForTerm
+    participant CacheQ as getTranslationFromCache
+    participant DB
+    participant OpenAI
+    participant CacheS as storeTranslationInCache
+    participant Nutzung as recordTranslationUsage
+
+    Client->>Uebersetzen: api.translate.translateText()
+    Uebersetzen->>Glossar: Glossar prüfen
+    Glossar->>DB: userGlossaries abfragen
+    Glossar-->>Uebersetzen: Treffer/kein Treffer
+    Uebersetzen->>CacheQ: Cache prüfen
+    CacheQ->>DB: translationsCache abfragen
+    CacheQ-->>Uebersetzen: Übersetzung im Cache?
+    alt Glossar- oder Cache-Treffer
+        Uebersetzen-->>Client: Übersetzung zurückgeben
+    else
+        Uebersetzen->>OpenAI: Übersetzung anfragen
+        OpenAI-->>Uebersetzen: Übersetzung
+        Uebersetzen->>CacheS: im Cache speichern
+        CacheS->>DB: translationsCache einfügen
+        Uebersetzen->>Nutzung: Nutzung protokollieren (falls angemeldet)
+        Nutzung->>DB: userMonthlyUsage upsert
+        Uebersetzen-->>Client: Übersetzung zurückgeben
+    end
+```
+
