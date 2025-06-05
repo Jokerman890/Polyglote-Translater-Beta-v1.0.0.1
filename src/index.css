@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Base colors for dark theme */
+  --color-text-light: #e2e8f0; /* slate-200 */
+  --color-text-dark: #94a3b8;  /* slate-400 for secondary text */
+  --color-bg-primary: #0f172a; /* slate-900 */
+  --color-bg-secondary: #1e293b; /* slate-800 */
+  --color-border-primary: rgba(255, 255, 255, 0.1); /* white-t in tailwind.config */
+
+  /* Glow colors from tailwind.config.js for potential JS use, though Tailwind classes are preferred */
+  --glow-default: #3b82f6; /* theme.extend.colors.glow.default */
+  --glow-recording: #ef4444; /* theme.extend.colors.glow.recording */
+  --glow-translating: #8b5cf6; /* theme.extend.colors.glow.translating */
+  --glow-camera: #10b981; /* theme.extend.colors.glow.camera */
+  --glow-success: #06b6d4; /* theme.extend.colors.glow.success */
+}
+
+body {
+  font-family:
+    "Inter Variable",
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    Arial,
+    "Noto Sans",
+    sans-serif,
+    "Apple Color Emoji",
+    "Segoe UI Emoji",
+    "Segoe UI Symbol",
+    "Noto Color Emoji";
+  color: var(--color-text-light);
+  @apply bg-gradient-to-br from-gray-900 to-black; /* Matches tailwind.config */
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Styling for locked Auth components to fit dark theme better */
+.auth-input-field { /* For SignInForm inputs */
+  @apply w-full px-4 py-3 rounded-lg bg-slate-700 border border-slate-600 text-slate-50 placeholder-slate-400 focus:border-brand-blue focus:ring-1 focus:ring-brand-blue outline-none transition-shadow shadow-md hover:shadow-lg;
+}
+
+.auth-button { /* For SignInForm and SignOutButton buttons */
+  @apply w-full px-4 py-3 rounded-lg bg-brand-blue text-white font-semibold hover:bg-blue-500 transition-colors shadow-md hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed;
+}
+
+/* Custom scrollbar for dark theme - optional but nice */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: #4b5563; /* slate-600 */
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b; /* slate-500 */
+}
