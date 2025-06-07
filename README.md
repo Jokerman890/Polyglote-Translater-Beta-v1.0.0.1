@@ -1,31 +1,31 @@
-# Translation App Backend and Frontend
+# Übersetzungs-App Backend und Frontend
   
-This is a project built with [Chef](https://chef.convex.dev) using [Convex](https://convex.dev) as its backend.
+Dies ist ein Projekt, das mit [Chef](https://chef.convex.dev) erstellt wurde und [Convex](https://convex.dev) als Backend verwendet.
   
-This project is connected to the Convex deployment named [`resilient-herring-727`](https://dashboard.convex.dev/d/resilient-herring-727).
+Dieses Projekt ist mit der Convex-Bereitstellung namens [`resilient-herring-727`](https://dashboard.convex.dev/d/resilient-herring-727) verbunden.
   
-## Project structure
+## Projektstruktur
   
-The frontend code is in the `app` directory and is built with [Vite](https://vitejs.dev/).
+Der Frontend-Code befindet sich im Verzeichnis `app` und wird mit [Vite](https://vitejs.dev/) erstellt.
   
-The backend code is in the `convex` directory.
+Der Backend-Code befindet sich im Verzeichnis `convex`.
   
-`npm run dev` will start the frontend and backend servers.
+`npm run dev` startet die Frontend- und Backend-Server.
 
-## App authentication
+## App-Authentifizierung
 
-Chef apps use [Convex Auth](https://auth.convex.dev/) with Anonymous auth for easy sign in. You may wish to change this before deploying your app.
+Chef-Apps verwenden [Convex Auth](https://auth.convex.dev/) mit anonymer Anmeldung für einen einfachen Login. Möglicherweise möchten Sie dies ändern, bevor Sie Ihre App bereitstellen.
 
-## Developing and deploying your app
+## Entwickeln und Bereitstellen Ihrer App
 
-Check out the [Convex docs](https://docs.convex.dev/) for more information on how to develop with Convex.
-* If you're new to Convex, the [Overview](https://docs.convex.dev/understanding/) is a good place to start
-* Check out the [Hosting and Deployment](https://docs.convex.dev/production/) docs for how to deploy your app
-* Read the [Best Practices](https://docs.convex.dev/understanding/best-practices/) guide for tips on how to improve you app further
+Weitere Informationen zur Entwicklung mit Convex finden Sie in der [Convex-Dokumentation](https://docs.convex.dev/).
+* Wenn Sie neu bei Convex sind, ist die [Übersicht](https://docs.convex.dev/understanding/) ein guter Ausgangspunkt
+* Informationen zum Bereitstellen Ihrer App finden Sie in der Dokumentation zu [Hosting und Bereitstellung](https://docs.convex.dev/production/).
+* Lesen Sie den [Best Practices](https://docs.convex.dev/understanding/best-practices/) Leitfaden für Tipps zur weiteren Verbesserung Ihrer App
 
-## HTTP API
+## HTTP-API
 
-User-defined http routes are defined in the `convex/router.ts` file. We split these routes into a separate file from `convex/http.ts` to allow us to prevent the LLM from modifying the authentication routes.
+Benutzerdefinierte HTTP-Routen werden in der Datei `convex/router.ts` definiert. Wir haben diese Routen in eine separate Datei von `convex/http.ts` aufgeteilt, um zu verhindern, dass das LLM die Authentifizierungsrouten ändert.
 
 ## Ablauf einer Anfrage
 
@@ -49,7 +49,7 @@ Der komplette Ablauf ist im folgenden Diagramm dargestellt:
 ```mermaid
 sequenceDiagram
     participant Client
-    participant Uebersetzen as translateText Aktion
+    participant Übersetzen as translateText Aktion
     participant Glossar as getGlossaryMatchForTerm
     participant CacheQ as getTranslationFromCache
     participant DB
@@ -57,23 +57,23 @@ sequenceDiagram
     participant CacheS as storeTranslationInCache
     participant Nutzung as recordTranslationUsage
 
-    Client->>Uebersetzen: api.translate.translateText()
-    Uebersetzen->>Glossar: Glossar prüfen
+    Client->>Übersetzen: api.translate.translateText()
+    Übersetzen->>Glossar: Glossar prüfen
     Glossar->>DB: userGlossaries abfragen
-    Glossar-->>Uebersetzen: Treffer/kein Treffer
-    Uebersetzen->>CacheQ: Cache prüfen
+    Glossar-->>Übersetzen: Treffer/kein Treffer
+    Übersetzen->>CacheQ: Cache prüfen
     CacheQ->>DB: translationsCache abfragen
-    CacheQ-->>Uebersetzen: Übersetzung im Cache?
+    CacheQ-->>Übersetzen: Übersetzung im Cache?
     alt Glossar- oder Cache-Treffer
-        Uebersetzen-->>Client: Übersetzung zurückgeben
+        Übersetzen-->>Client: Übersetzung zurückgeben
     else
-        Uebersetzen->>OpenAI: Übersetzung anfragen
-        OpenAI-->>Uebersetzen: Übersetzung
-        Uebersetzen->>CacheS: im Cache speichern
+        Übersetzen->>OpenAI: Übersetzung anfragen
+        OpenAI-->>Übersetzen: Übersetzung
+        Übersetzen->>CacheS: im Cache speichern
         CacheS->>DB: translationsCache einfügen
-        Uebersetzen->>Nutzung: Nutzung protokollieren (falls angemeldet)
+        Übersetzen->>Nutzung: Nutzung protokollieren (falls angemeldet)
         Nutzung->>DB: userMonthlyUsage upsert
-        Uebersetzen-->>Client: Übersetzung zurückgeben
+        Übersetzen-->>Client: Übersetzung zurückgeben
     end
 ```
 
