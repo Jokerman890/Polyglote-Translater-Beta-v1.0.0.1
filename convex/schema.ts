@@ -6,9 +6,10 @@ const applicationTables = {
   translationsCache: defineTable({
     originalTextSHA256: v.string(),
     originalText: v.string(),
+  sourceLanguage: v.string(), // Added
     targetLanguage: v.string(),
     translatedText: v.string(),
-  }).index("by_original_text_sha256_and_target_language", ["originalTextSHA256", "targetLanguage"]),
+}).index("by_original_text_sha256_and_source_and_target_language", ["originalTextSHA256", "sourceLanguage", "targetLanguage"]), // Index name and fields updated
 
   userGlossaries: defineTable({
     userId: v.id("users"),
