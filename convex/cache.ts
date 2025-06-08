@@ -7,16 +7,19 @@ import { QueryCtx, MutationCtx } from "./_generated/server";
 export const getTranslationFromCache = internalQuery({
   args: {
     originalTextSHA256: v.string(),
+    sourceLanguage: v.string(), // Added
     targetLanguage: v.string(),
   },
   handler: async (
     ctx: QueryCtx,
-    args: { originalTextSHA256: string; targetLanguage: string }
+    args: { originalTextSHA256: string; sourceLanguage: string; targetLanguage: string } // Updated args type
   ): Promise<Doc<"translationsCache"> | null> => {
     const result = await ctx.db
       .query("translationsCache")
-      .withIndex("by_original_text_sha256_and_target_language", (q) =>
-        q.eq("originalTextSHA256", args.originalTextSHA256).eq("targetLanguage", args.targetLanguage)
+      .withIndex("by_original_text_sha256_and_source_and_target_language", (q) => // Index name updated
+        q.eq("originalTextSHA256", args.originalTextSHA256)
+         .eq("sourceLanguage", args.sourceLanguage) // Added sourceLanguage condition
+         .eq("targetLanguage", args.targetLanguage)
       )
       .unique();
     return result;
@@ -28,6 +31,7 @@ export const storeTranslationInCache = internalMutation({
   args: {
     originalTextSHA256: v.string(),
     originalText: v.string(),
+    sourceLanguage: v.string(), // Added
     targetLanguage: v.string(),
     translatedText: v.string(),
   },
@@ -36,6 +40,7 @@ export const storeTranslationInCache = internalMutation({
     args: {
       originalTextSHA256: string;
       originalText: string;
+      sourceLanguage: string; // Updated args type
       targetLanguage: string;
       translatedText: string;
     }
@@ -43,6 +48,7 @@ export const storeTranslationInCache = internalMutation({
     await ctx.db.insert("translationsCache", {
       originalTextSHA256: args.originalTextSHA256,
       originalText: args.originalText,
+      sourceLanguage: args.sourceLanguage, // Added
       targetLanguage: args.targetLanguage,
       translatedText: args.translatedText,
     });

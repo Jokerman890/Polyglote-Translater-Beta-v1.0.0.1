@@ -55,13 +55,14 @@ export const translateText = action({
     }
 
     // 2. Check general cache
-    const cacheKeyString = `${textToTranslate.toLowerCase()}|${args.targetLanguage.toLowerCase()}`;
+    const cacheKeyString = `${textToTranslate.toLowerCase()}|${args.sourceLanguage.toLowerCase()}|${args.targetLanguage.toLowerCase()}`;
     const originalTextSHA256 = await sha256(cacheKeyString);
 
     const cached: Doc<"translationsCache"> | null = await ctx.runQuery(
       internal.cache.getTranslationFromCache,
       {
         originalTextSHA256,
+        sourceLanguage: args.sourceLanguage, // Added
         targetLanguage: args.targetLanguage,
       }
     );
@@ -91,6 +92,7 @@ export const translateText = action({
         await ctx.runMutation(internal.cache.storeTranslationInCache, {
           originalTextSHA256,
           originalText: textToTranslate,
+          sourceLanguage: args.sourceLanguage, // Added
           targetLanguage: args.targetLanguage,
           translatedText,
         });
